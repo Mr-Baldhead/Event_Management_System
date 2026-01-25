@@ -1,0 +1,87 @@
+# Development compose - run backend in Docker, frontend locally with ng serve
+# Usage: docker-compose -f docker-compose.dev.yml up -d
+# Then: cd frontend && npm start
+
+services:
+  # MySQL database
+  mysql:
+    image: mysql:8.3
+    container_name: eventmanager-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: eventmanager
+      MYSQL_USER: eventuser
+      MYSQL_PASSWORD: eventpassword
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - eventmanager-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Flyway database migrations
+  flyway:
+    image: flyway/flyway:10.10.0
+    container_name: eventmanager-flyway
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:mysql://mysql:3306/eventmanager?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Stockholm
+      FLYWAY_USER: eventuser
+      FLYWAY_PASSWORD: eventpassword
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_ENCODING: UTF-8
+    volumes:
+      - ./backend/src/main/resources/db/migration:/flyway/sql
+    command: migrate
+    networks:
+      - eventmanager-network
+
+  # WildFly backend (Jakarta EE)
+  wildfly:
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile
+    container_name: eventmanager-wildfly
+    depends_on:
+      mysql:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: eventmanager
+      DB_USER: eventuser
+      DB_PASSWORD: eventpassword
+      WILDFLY_ADMIN_USER: admin
+      WILDFLY_ADMIN_PASSWORD: admin123
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    volumes:
+      - ./backend/target/event-management.war:/opt/jboss/wildfly/standalone/deployments/event-management.war
+    networks:
+      - eventmanager-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/api/events || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+networks:
+  eventmanager-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

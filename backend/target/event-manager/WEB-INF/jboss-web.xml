@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-web xmlns="urn:jboss:jboss-web:14.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="urn:jboss:jboss-web:14.0 https://www.jboss.org/schema/jbossas/jboss-web_14_0.xsd">
+    <!-- Set context root to / so API is at /api/events instead of /event-management/api/events -->
+    <context-root>/</context-root>
+</jboss-web>

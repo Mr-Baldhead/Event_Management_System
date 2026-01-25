@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MySQL JDBC driver module configuration for WildFly -->
+<module xmlns="urn:jboss:module:1.9" name="com.mysql">
+    <resources>
+        <resource-root path="mysql-connector-j-8.3.0.jar"/>
+    </resources>
+    <dependencies>
+        <module name="java.sql"/>
+        <module name="java.transaction.xa"/>
+        <module name="java.logging"/>
+        <module name="java.naming"/>
+        <module name="java.security.sasl"/>
+        <module name="jdk.security.auth"/>
+    </dependencies>
+</module>

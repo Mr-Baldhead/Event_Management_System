@@ -1,0 +1,362 @@
+// =============================================================================
+// MAIN STYLES - Event Management System
+// =============================================================================
+
+@use 'sass:color';
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+// =============================================================================
+// RESET AND BASE STYLES
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family;
+  background-color: $background;
+  color: $text-primary;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+// =============================================================================
+// TYPOGRAPHY
+// =============================================================================
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  color: $text-primary;
+}
+
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+h5 { font-size: 16px; }
+h6 { font-size: 14px; }
+
+a {
+  color: $primary;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $primary-dark;
+  }
+}
+
+// =============================================================================
+// UTILITY CLASSES
+// =============================================================================
+
+.container {
+  @include container;
+}
+
+.card {
+  @include card;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.text-primary { color: $text-primary; }
+.text-secondary { color: $text-secondary; }
+.text-muted { color: $text-muted; }
+
+// Margin utilities
+.mt-xs { margin-top: $spacing-xs; }
+.mt-sm { margin-top: $spacing-sm; }
+.mt-md { margin-top: $spacing-md; }
+.mt-lg { margin-top: $spacing-lg; }
+.mt-xl { margin-top: $spacing-xl; }
+.mt-xxl { margin-top: $spacing-xxl; }
+
+.mb-xs { margin-bottom: $spacing-xs; }
+.mb-sm { margin-bottom: $spacing-sm; }
+.mb-md { margin-bottom: $spacing-md; }
+.mb-lg { margin-bottom: $spacing-lg; }
+.mb-xl { margin-bottom: $spacing-xl; }
+.mb-xxl { margin-bottom: $spacing-xxl; }
+
+// Padding utilities
+.p-xs { padding: $spacing-xs; }
+.p-sm { padding: $spacing-sm; }
+.p-md { padding: $spacing-md; }
+.p-lg { padding: $spacing-lg; }
+.p-xl { padding: $spacing-xl; }
+.p-xxl { padding: $spacing-xxl; }
+
+// =============================================================================
+// ANGULAR MATERIAL OVERRIDES
+// =============================================================================
+
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button,
+.mat-mdc-stroked-button {
+  border-radius: $radius-md !important;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: #{$radius-lg};
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-shape: #{$radius-md};
+}
+
+.mat-mdc-card {
+  --mdc-elevated-card-container-shape: #{$radius-lg};
+  --mdc-outlined-card-container-shape: #{$radius-lg};
+}
+
+// =============================================================================
+// BUTTON VARIANTS
+// =============================================================================
+
+.btn-primary {
+  background-color: $primary !important;
+  color: $primary-contrast !important;
+  
+  &:hover {
+    background-color: $teal-400 !important;
+  }
+}
+
+.btn-accent {
+  background-color: $accent !important;
+  color: $accent-contrast !important;
+  
+  &:hover {
+    background-color: $blue-400 !important;
+  }
+}
+
+.btn-outline {
+  background-color: transparent !important;
+  border: 1px solid $border-default !important;
+  color: $text-primary !important;
+  
+  &:hover {
+    background-color: $bg-hover !important;
+    border-color: $primary !important;
+  }
+}
+
+.btn-danger {
+  background-color: $danger !important;
+  color: white !important;
+  
+  &:hover {
+    background-color: color.adjust($danger, $lightness: -10%) !important;
+  }
+}
+
+// =============================================================================
+// SCROLLBAR STYLING
+// =============================================================================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $gray-50;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $gray-300;
+  border-radius: 4px;
+  
+  &:hover {
+    background: $gray-400;
+  }
+}
+
+// =============================================================================
+// SNACKBAR STYLES
+// =============================================================================
+
+.success-snackbar {
+  --mdc-snackbar-container-color: #{$success};
+  --mat-snack-bar-button-color: #{$text-inverse};
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #{$error};
+  --mat-snack-bar-button-color: #{$text-inverse};
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: #{$warning};
+  --mat-snack-bar-button-color: #{$text-primary};
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: #{$info};
+  --mat-snack-bar-button-color: #{$text-inverse};
+}
+
+// =============================================================================
+// PAGE LAYOUTS
+// =============================================================================
+
+.page-container {
+  padding: $spacing-xxl $spacing-lg;
+  max-width: $container-max-width;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: $spacing-xl;
+  
+  h1 {
+    margin-bottom: $spacing-sm;
+  }
+  
+  .subtitle {
+    color: $text-secondary;
+    font-size: $font-size-lg;
+  }
+}
+
+// =============================================================================
+// FORM LAYOUTS
+// =============================================================================
+
+.form-row {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+  }
+}
+
+.form-group {
+  flex: 1;
+  margin-bottom: $spacing-md;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-xs;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+  }
+}
+
+// =============================================================================
+// STATUS BADGES
+// =============================================================================
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.badge-success {
+    background-color: rgba($success, 0.1);
+    color: $success;
+  }
+  
+  &.badge-warning {
+    background-color: rgba($warning, 0.1);
+    color: color.adjust($warning, $lightness: -20%);
+  }
+  
+  &.badge-danger {
+    background-color: rgba($danger, 0.1);
+    color: $danger;
+  }
+  
+  &.badge-info {
+    background-color: rgba($info, 0.1);
+    color: $info;
+  }
+}
+
+// =============================================================================
+// EMPTY STATES
+// =============================================================================
+
+.empty-state {
+  @include flex-center;
+  @include flex-column;
+  padding: $spacing-xxl;
+  text-align: center;
+  color: $text-muted;
+  
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: $spacing-md;
+    opacity: 0.5;
+  }
+  
+  h3 {
+    color: $text-secondary;
+    margin-bottom: $spacing-sm;
+  }
+  
+  p {
+    max-width: 400px;
+  }
+}
+
+// =============================================================================
+// LOADING STATES
+// =============================================================================
+
+.loading-container {
+  @include flex-center;
+  padding: $spacing-xxl;
+  min-height: 200px;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    $gray-100 25%,
+    $gray-50 50%,
+    $gray-100 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: $border-radius-md;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

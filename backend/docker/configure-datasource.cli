@@ -1,0 +1,30 @@
+# WildFly CLI script to configure MySQL datasource
+# Run in embedded mode for offline configuration
+
+embed-server --server-config=standalone.xml
+
+# Add MySQL JDBC driver
+/subsystem=datasources/jdbc-driver=mysql:add( \
+    driver-name=mysql, \
+    driver-module-name=com.mysql, \
+    driver-class-name=com.mysql.cj.jdbc.Driver, \
+    driver-xa-datasource-class-name=com.mysql.cj.jdbc.MysqlXADataSource)
+
+# Add datasource for Event Manager
+# Default values match docker-compose service names
+/subsystem=datasources/data-source=EventManagerDS:add( \
+    jndi-name=java:jboss/datasources/EventManagerDS, \
+    driver-name=mysql, \
+    connection-url="jdbc:mysql://mysql:3306/eventmanager?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Stockholm&characterEncoding=UTF-8", \
+    user-name=eventuser, \
+    password=eventpassword, \
+    use-java-context=true, \
+    min-pool-size=5, \
+    max-pool-size=20, \
+    pool-prefill=true, \
+    valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker, \
+    exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter, \
+    background-validation=true, \
+    background-validation-millis=60000)
+
+stop-embedded-server

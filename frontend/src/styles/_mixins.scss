@@ -1,0 +1,191 @@
+@use 'sass:color';
+@use 'variables' as *;
+
+// =============================================================================
+// FLEXBOX HELPERS
+// =============================================================================
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// =============================================================================
+// CARD STYLES
+// =============================================================================
+
+@mixin card {
+  background: $surface;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+  padding: $spacing-lg;
+}
+
+@mixin card-hover {
+  transition: transform $transition-normal, box-shadow $transition-normal;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// =============================================================================
+// BUTTON STYLES
+// =============================================================================
+
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color $transition-fast, transform $transition-fast;
+  text-decoration: none;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: $primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: $gray-100;
+  color: $text-primary;
+  border: 1px solid $gray-200;
+
+  &:hover:not(:disabled) {
+    background: $gray-200;
+  }
+}
+
+@mixin button-danger {
+  @include button-base;
+  background: $danger;
+  color: white;
+
+  &:hover:not(:disabled) {
+    // Use modern color.adjust instead of deprecated darken()
+    background: color.adjust($danger, $lightness: -10%);
+  }
+}
+
+// =============================================================================
+// FORM ELEMENTS
+// =============================================================================
+
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-md;
+  font-size: 14px;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+// =============================================================================
+// RESPONSIVE BREAKPOINTS
+// =============================================================================
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm {
+    @media (max-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == md {
+    @media (max-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == lg {
+    @media (max-width: $breakpoint-lg) { @content; }
+  } @else if $breakpoint == xl {
+    @media (max-width: $breakpoint-xl) { @content; }
+  }
+}
+
+// =============================================================================
+// CONTAINER
+// =============================================================================
+
+@mixin container {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: 0 $container-padding;
+}
+
+// =============================================================================
+// TYPOGRAPHY
+// =============================================================================
+
+@mixin section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: $spacing-md;
+}
+
+// =============================================================================
+// INFO GRID
+// =============================================================================
+
+@mixin info-item {
+  padding: $spacing-md;
+  background: $gray-50;
+  border-radius: $border-radius-md;
+
+  .label {
+    font-size: 12px;
+    color: $text-muted;
+    text-transform: uppercase;
+    margin-bottom: $spacing-xs;
+  }
+
+  .value {
+    font-size: 18px;
+    color: $text-primary;
+    font-weight: 500;
+  }
+}

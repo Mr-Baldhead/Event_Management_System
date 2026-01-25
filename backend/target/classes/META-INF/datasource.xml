@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- WildFly datasource configuration file -->
+<!-- This file is used to configure the MySQL datasource in WildFly -->
+<!-- Deploy this as part of your WildFly configuration or use CLI commands -->
+
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema 
+                                 http://docs.jboss.org/ironjacamar/schema/datasources_1_2.xsd">
+
+    <datasource jndi-name="java:/jdbc/EventDS" 
+                pool-name="EventDS" 
+                enabled="true" 
+                use-java-context="true">
+        
+        <connection-url>jdbc:mysql://${env.DB_HOST:localhost}:${env.DB_PORT:3306}/${env.DB_NAME:eventdb}?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC&amp;characterEncoding=UTF-8</connection-url>
+        
+        <driver>mysql</driver>
+        
+        <pool>
+            <min-pool-size>5</min-pool-size>
+            <max-pool-size>20</max-pool-size>
+            <prefill>true</prefill>
+        </pool>
+        
+        <security>
+            <user-name>${env.DB_USER:user}</user-name>
+            <password>${env.DB_PASSWORD:secret}</password>
+        </security>
+        
+        <validation>
+            <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker"/>
+            <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter"/>
+            <validate-on-match>true</validate-on-match>
+            <background-validation>false</background-validation>
+        </validation>
+        
+        <timeout>
+            <set-tx-query-timeout>true</set-tx-query-timeout>
+            <blocking-timeout-millis>5000</blocking-timeout-millis>
+            <idle-timeout-minutes>15</idle-timeout-minutes>
+        </timeout>
+        
+        <statement>
+            <prepared-statement-cache-size>32</prepared-statement-cache-size>
+            <share-prepared-statements>true</share-prepared-statements>
+        </statement>
+    </datasource>
+
+    <drivers>
+        <driver name="mysql" module="com.mysql">
+            <driver-class>com.mysql.cj.jdbc.Driver</driver-class>
+            <xa-datasource-class>com.mysql.cj.jdbc.MysqlXADataSource</xa-datasource-class>
+        </driver>
+    </drivers>
+</datasources>
