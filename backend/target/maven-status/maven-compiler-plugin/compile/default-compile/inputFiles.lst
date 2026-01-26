@@ -4,6 +4,7 @@
 /Users/jorgen/Documents/Webbutveckling/EXAMENSARBETE/event-management-system/backend/src/main/java/com/eventmanager/dto/AllergenDTO.java
 /Users/jorgen/Documents/Webbutveckling/EXAMENSARBETE/event-management-system/backend/src/main/java/com/eventmanager/dto/AllergyReportDTO.java
 /Users/jorgen/Documents/Webbutveckling/EXAMENSARBETE/event-management-system/backend/src/main/java/com/eventmanager/dto/EventDTO.java
+/Users/jorgen/Documents/Webbutveckling/EXAMENSARBETE/event-management-system/backend/src/main/java/com/eventmanager/dto/EventPatchDTO.java
 /Users/jorgen/Documents/Webbutveckling/EXAMENSARBETE/event-management-system/backend/src/main/java/com/eventmanager/dto/ParticipantDTO.java
 /Users/jorgen/Documents/Webbutveckling/EXAMENSARBETE/event-management-system/backend/src/main/java/com/eventmanager/dto/PatrolDTO.java
 /Users/jorgen/Documents/Webbutveckling/EXAMENSARBETE/event-management-system/backend/src/main/java/com/eventmanager/dto/RegistrationDTO.java

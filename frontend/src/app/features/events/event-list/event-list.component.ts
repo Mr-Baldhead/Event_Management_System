@@ -107,22 +107,21 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/compo
 
                             <mat-card-actions align="end">
                                 <!-- Active toggle - only for admins -->
-                                @if (authService.isAdmin()) {
-                                    <mat-slide-toggle
-                                            [checked]="event.active"
-                                            (change)="toggleActive(event)"
-                                            [matTooltip]="event.active ? 'Inaktivera event' : 'Aktivera event'"
-                                            color="primary"
-                                            class="active-toggle">
-                                    </mat-slide-toggle>
-                                }
+                                <mat-slide-toggle
+                                        *ngIf="authService.isAdmin()"
+                                        [checked]="event.active"
+                                        (change)="toggleActive(event)"
+                                        [matTooltip]="event.active ? 'Inaktivera event' : 'Aktivera event'"
+                                        color="primary"
+                                        class="active-toggle">
+                                </mat-slide-toggle>
 
                                 <a mat-button color="primary" [routerLink]="['/events', event.id]">
                                     <mat-icon>visibility</mat-icon>
                                     Visa
                                 </a>
 
-                                @if (authService.isAdmin()) {
+                                <ng-container *ngIf="authService.isAdmin()">
                                     <a mat-button color="accent" [routerLink]="['/events', event.id, 'edit']">
                                         <mat-icon>edit</mat-icon>
                                         Redigera
@@ -132,7 +131,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/compo
                                         <mat-icon>delete</mat-icon>
                                         Ta bort
                                     </button>
-                                }
+                                </ng-container>
                             </mat-card-actions>
                         </mat-card>
                     }

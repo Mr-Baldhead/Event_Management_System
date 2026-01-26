@@ -4,6 +4,7 @@ com/eventmanager/dto/EventDTO.class
 com/eventmanager/repository/PatrolRepository.class
 com/eventmanager/rest/RegistrationResource.class
 com/eventmanager/repository/EventRepository.class
+com/eventmanager/dto/EventPatchDTO.class
 com/eventmanager/entity/Patrol.class
 com/eventmanager/service/ParticipantService.class
 com/eventmanager/dto/AllergyReportDTO.class
@@ -18,6 +19,7 @@ com/eventmanager/entity/AllergenSeverity.class
 com/eventmanager/service/EventService.class
 com/eventmanager/entity/Registration.class
 com/eventmanager/rest/PatrolResource.class
+com/eventmanager/dto/RegistrationDTO$AllergyInfo.class
 com/eventmanager/exception/ResourceNotFoundException.class
 com/eventmanager/dto/AllergenDTO.class
 com/eventmanager/dto/AllergyReportDTO$AllergyGroupDTO.class

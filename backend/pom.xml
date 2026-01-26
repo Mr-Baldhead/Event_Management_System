@@ -20,6 +20,8 @@
         <hibernate.version>6.4.4.Final</hibernate.version>
         <mysql.connector.version>8.3.0</mysql.connector.version>
         <jackson.version>2.17.0</jackson.version>
+        <junit.version>5.10.2</junit.version>
+        <mockito.version>5.11.0</mockito.version>
     </properties>
 
     <dependencies>
@@ -47,17 +49,14 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- ============================================== -->
-        <!-- Jackson Java 8 Date/Time support              -->
-        <!-- Fixes LocalDateTime serialization as ISO-8601 -->
-        <!-- ============================================== -->
+        <!-- Jackson Java 8 Date/Time support -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- Jackson core (usually provided by WildFly, but explicit for safety) -->
+        <!-- Jackson core -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -72,14 +71,39 @@
             <version>5.2.5</version>
         </dependency>
 
-        <!-- Testing -->
+        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito Core -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito JUnit 5 Extension -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- AssertJ -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.25.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 
     <build>
         <finalName>event-manager</finalName>
@@ -100,6 +124,11 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
             </plugin>
         </plugins>
     </build>
