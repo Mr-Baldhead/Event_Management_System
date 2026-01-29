@@ -171,6 +171,13 @@ import { HeaderComponent } from '../../../shared/components/header/header.compon
                                 <mat-icon>close</mat-icon>
                                 Avbryt
                             </button>
+
+                            <button *ngIf="isEditMode()" mat-stroked-button type="button"
+                                    [routerLink]="['/events', eventId, 'form-builder']">
+                                <mat-icon>dynamic_form</mat-icon>
+                                Redigera formulär
+                            </button>
+
                             <button mat-flat-button color="primary" type="submit"
                                     [disabled]="eventForm.invalid || submitting() || !!dateError()">
                                 <mat-spinner *ngIf="submitting()" diameter="20"></mat-spinner>
@@ -230,7 +237,6 @@ import { HeaderComponent } from '../../../shared/components/header/header.compon
         color: #5F6166;
       }
 
-      /* Compact form fields - 30% smaller height */
       :host ::ng-deep .mat-mdc-form-field {
         margin-bottom: 20px;
       }
@@ -279,7 +285,6 @@ import { HeaderComponent } from '../../../shared/components/header/header.compon
         font-size: 14px;
       }
 
-      /* Textarea (Beskrivning) - original size */
       :host ::ng-deep .mat-mdc-form-field:has(textarea) .mat-mdc-form-field-flex {
         height: auto !important;
         min-height: 100px !important;
@@ -425,7 +430,7 @@ export class EventFormComponent implements OnInit {
 
     // Form
     eventForm!: FormGroup;
-    private eventId: number | null = null;
+    eventId: number | null = null;
 
     ngOnInit(): void {
         this.initForm();
@@ -504,9 +509,6 @@ export class EventFormComponent implements OnInit {
         });
     }
 
-    /**
-     * Parse date from backend - handles array format and ISO string
-     */
     private parseBackendDate(dateValue: unknown): Date | null {
         if (!dateValue) {
             return null;
@@ -581,13 +583,9 @@ export class EventFormComponent implements OnInit {
 
         const formValue = this.eventForm.value;
 
-        // Generate slug from name
-        const slug = this.generateSlug(formValue.name);
-
         // Combine date and time into ISO format strings
         const eventData = {
             name: formValue.name,
-            slug: slug,
             description: formValue.description || null,
             startDate: this.formatDateTimeISO(formValue.startDate, formValue.startTime),
             endDate: this.formatDateTimeISO(formValue.endDate, formValue.endTime),
@@ -621,11 +619,12 @@ export class EventFormComponent implements OnInit {
         } else {
             this.eventService.createEvent(eventData).subscribe({
                 next: (created) => {
-                    this.snackBar.open('Event skapat!', 'Stäng', {
+                    this.snackBar.open('Event skapat! Nu kan du bygga anmälningsformuläret.', 'Stäng', {
                         duration: 3000,
                         panelClass: 'success-snackbar'
                     });
-                    this.router.navigate(['/events', created.id]);
+                    // Navigate to form builder after creating event
+                    this.router.navigate(['/events', created.id, 'form-builder']);
                 },
                 error: (err) => {
                     console.error('Failed to create event:', err);
@@ -637,18 +636,5 @@ export class EventFormComponent implements OnInit {
                 }
             });
         }
-    }
-
-    private generateSlug(name: string): string {
-        return name
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[åä]/g, 'a')
-            .replace(/[ö]/g, 'o')
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-|-$/g, '');
     }
 }

@@ -1,22 +1,11 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 
-/**
- * HTTP interceptor that adds auth token to requests
- */
+// Auth interceptor - with cookie-based auth, we just need to ensure credentials are sent
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const token = authService.getToken();
-
-  if (token) {
+    // Clone request to add withCredentials for cookie-based auth
     const authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        withCredentials: true
     });
-    return next(authReq);
-  }
 
-  return next(req);
+    return next(authReq);
 };

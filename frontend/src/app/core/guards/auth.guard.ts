@@ -1,90 +1,93 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { map, take } from 'rxjs/operators';
 
-/**
- * Guard to protect routes that require authentication.
- * Redirects to login page if user is not authenticated.
- */
+// Guard for authenticated routes
 export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+    const authService = inject(AuthService);
+    const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    return true;
-  }
+    return authService.currentUser$.pipe(
+        take(1),
+        map(user => {
+            if (user) {
+                // Check if must change password
+                if (user.mustChangePassword && state.url !== '/change-password') {
+                    router.navigate(['/change-password']);
+                    return false;
+                }
+                return true;
+            }
 
-  // Store the attempted URL for redirecting after login
-  const returnUrl = state.url;
-  
-  // Navigate to login with return URL
-  router.navigate(['/login'], { 
-    queryParams: { returnUrl } 
-  });
-  
-  return false;
+            // Not authenticated, redirect to login
+            router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+            return false;
+        })
+    );
 };
 
-/**
- * Guard to protect routes that require admin role.
- * Redirects to home if user is not an admin.
- */
-export const adminGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+// Guard for non-authenticated routes (login page)
+export const noAuthGuard: CanActivateFn = (route, state) => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
 
-  if (!authService.isAuthenticated()) {
-    router.navigate(['/login'], { 
-      queryParams: { returnUrl: state.url } 
-    });
-    return false;
-  }
+    return authService.currentUser$.pipe(
+        take(1),
+        map(user => {
+            if (!user) {
+                return true;
+            }
 
-  if (!authService.isAdmin()) {
-    router.navigate(['/']);
-    return false;
-  }
-
-  return true;
+            // Already authenticated, redirect based on role
+            if (user.role === 'SUPERADMIN') {
+                router.navigate(['/admin/users']);
+            } else {
+                router.navigate(['/events']);
+            }
+            return false;
+        })
+    );
 };
 
-/**
- * Guard to protect routes that require superadmin role.
- */
+// Guard for SuperAdmin only routes
 export const superAdminGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+    const authService = inject(AuthService);
+    const router = inject(Router);
 
-  if (!authService.isAuthenticated()) {
-    router.navigate(['/login'], { 
-      queryParams: { returnUrl: state.url } 
-    });
-    return false;
-  }
+    return authService.currentUser$.pipe(
+        take(1),
+        map(user => {
+            if (user?.role === 'SUPERADMIN') {
+                return true;
+            }
 
-  if (!authService.isSuperAdmin()) {
-    router.navigate(['/']);
-    return false;
-  }
-
-  return true;
+            // Not SuperAdmin, redirect
+            if (user) {
+                router.navigate(['/events']);
+            } else {
+                router.navigate(['/login']);
+            }
+            return false;
+        })
+    );
 };
 
-/**
- * Guard to prevent authenticated users from accessing login page.
- * Redirects to home if user is already logged in.
- */
-export const noAuthGuard: CanActivateFn = () => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+// Guard for Admin only routes (regular admins and superadmins)
+export const adminGuard: CanActivateFn = (route, state) => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    router.navigate(['/']);
-    return false;
-  }
+    return authService.currentUser$.pipe(
+        take(1),
+        map(user => {
+            if (user && (user.role === 'ADMIN' || user.role === 'SUPERADMIN')) {
+                return true;
+            }
 
-  return true;
+            // Not authenticated or not admin
+            router.navigate(['/login']);
+            return false;
+        })
+    );
 };
-
-// Alias for backwards compatibility
-export const guestGuard = noAuthGuard;

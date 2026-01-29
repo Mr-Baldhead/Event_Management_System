@@ -1,0 +1,379 @@
+<app-header></app-header>
+
+<main class="form-builder-container">
+    <!-- Back link and title -->
+    <div class="page-header">
+        <a (click)="goBack()" class="back-link">
+            <mat-icon>arrow_back</mat-icon>
+            Tillbaka till {{ eventName() || 'event' }}
+        </a>
+        <!--<p class="subtitle" *ngIf="eventName()">{{ eventName() }}</p>-->
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="loading()" class="loading-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <span>Laddar formulär...</span>
+    </div>
+
+    <!-- Main content -->
+    <div *ngIf="!loading()" class="builder-layout">
+
+        <!-- Left Panel: Field Library -->
+        <aside class="field-library">
+            <h2>Fältbibliotek</h2>
+
+            <!-- Predefined fields FIRST -->
+            <mat-expansion-panel expanded>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon>auto_awesome</mat-icon>
+                        Fördefinierade fält
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div
+                        cdkDropList
+                        id="predefined-fields-list"
+                        [cdkDropListData]="predefinedFields"
+                        [cdkDropListConnectedTo]="rowIds()"
+                        cdkDropListSortingDisabled
+                        class="field-list"
+                >
+                    <div
+                            *ngFor="let field of predefinedFields"
+                            cdkDrag
+                            [cdkDragData]="field"
+                            class="field-item predefined"
+                    >
+                        <mat-icon>{{ field.icon }}</mat-icon>
+                        <div class="field-info">
+                            <span class="field-label">{{ field.label }}</span>
+                            <span class="field-desc">{{ field.description }}</span>
+                        </div>
+                        <mat-icon class="drag-handle">drag_indicator</mat-icon>
+
+                        <div *cdkDragPreview class="drag-preview predefined">
+                            <mat-icon>{{ field.icon }}</mat-icon>
+                            {{ field.label }}
+                        </div>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+
+            <!-- Base fields SECOND -->
+            <mat-expansion-panel expanded>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon>widgets</mat-icon>
+                        Basfält
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div
+                        cdkDropList
+                        id="base-fields-list"
+                        [cdkDropListData]="baseFields"
+                        [cdkDropListConnectedTo]="rowIds()"
+                        cdkDropListSortingDisabled
+                        class="field-list"
+                >
+                    <div
+                            *ngFor="let field of baseFields"
+                            cdkDrag
+                            [cdkDragData]="field"
+                            class="field-item"
+                    >
+                        <mat-icon>{{ field.icon }}</mat-icon>
+                        <div class="field-info">
+                            <span class="field-label">{{ field.label }}</span>
+                            <span class="field-desc">{{ field.description }}</span>
+                        </div>
+                        <mat-icon class="drag-handle">drag_indicator</mat-icon>
+
+                        <div *cdkDragPreview class="drag-preview">
+                            <mat-icon>{{ field.icon }}</mat-icon>
+                            {{ field.label }}
+                        </div>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </aside>
+
+        <!-- Center: Form Canvas -->
+        <section class="form-canvas">
+            <div class="canvas-header">
+                <h2>Formulär</h2>
+                <div class="canvas-actions">
+                    <button mat-button (click)="togglePreview()" [class.active]="previewMode()">
+                        <mat-icon>{{ previewMode() ? 'edit' : 'visibility' }}</mat-icon>
+                        {{ previewMode() ? 'Redigera' : 'Förhandsgranska' }}
+                    </button>
+                    <button mat-flat-button color="primary" (click)="addRow()">
+                        <mat-icon>add</mat-icon>
+                        Lägg till rad
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div *ngIf="rows().length === 0" class="empty-canvas">
+                <mat-icon>drag_indicator</mat-icon>
+                <p>Dra fält från biblioteket hit för att börja bygga ditt formulär</p>
+                <button mat-stroked-button (click)="addRow()">
+                    <mat-icon>add</mat-icon>
+                    Lägg till första raden
+                </button>
+            </div>
+
+            <!-- Rows -->
+            <div class="canvas-rows" *ngIf="rows().length > 0">
+                <div
+                        *ngFor="let row of rows(); let i = index; trackBy: trackByRowId"
+                        class="form-row"
+                        [class.selected]="selectedRowId() === row.id"
+                >
+                    <!-- Row controls -->
+                    <div class="row-controls" *ngIf="!previewMode()">
+                        <button mat-icon-button (click)="moveRowUp(i)" [disabled]="i === 0" matTooltip="Flytta upp">
+                            <mat-icon>keyboard_arrow_up</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="moveRowDown(i)" [disabled]="i === rows().length - 1" matTooltip="Flytta ner">
+                            <mat-icon>keyboard_arrow_down</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="removeRow(row.id)" class="delete-btn" matTooltip="Ta bort rad">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+
+                    <!-- Row drop zone -->
+                    <div
+                            cdkDropList
+                            [id]="'row-' + row.id"
+                            [cdkDropListData]="row.fields"
+                            [cdkDropListConnectedTo]="['base-fields-list', 'predefined-fields-list'].concat(rowIds())"
+                            (cdkDropListDropped)="onDropField($event, row.id)"
+                            class="row-content"
+                            [class.empty]="row.fields.length === 0"
+                            [class.preview-mode]="previewMode()"
+                    >
+                        <!-- Empty row placeholder -->
+                        <div *ngIf="row.fields.length === 0 && !previewMode()" class="row-placeholder">
+                            <mat-icon>add_circle_outline</mat-icon>
+                            <span>Dra ett fält hit</span>
+                        </div>
+
+                        <!-- Fields in row -->
+                        <div
+                                *ngFor="let field of row.fields; trackBy: trackByFieldId"
+                                cdkDrag
+                                [cdkDragDisabled]="previewMode() ? true : false"
+                                class="field-card"
+                                [class.selected]="selectedField()?.id === field.id"
+                                [class.preview-mode]="previewMode()"
+                                (click)="!previewMode() && selectField(field, row.id)"
+                        >
+                            <!-- Edit mode -->
+                            <ng-container *ngIf="!previewMode()">
+                                <div class="field-card-header">
+                                    <mat-icon>{{ getFieldIcon(field) }}</mat-icon>
+                                    <span class="field-label">{{ field.label }}</span>
+                                    <span class="field-type">{{ getFieldTypeLabel(field.fieldType) }}</span>
+                                    <mat-icon *ngIf="field.required" class="required-badge" matTooltip="Obligatoriskt">star</mat-icon>
+                                </div>
+
+                                <!-- Field preview -->
+                                <div class="field-preview">
+                                    <ng-container [ngSwitch]="field.fieldType">
+                                        <mat-form-field *ngSwitchCase="'TEXT'" appearance="outline" class="preview-field">
+                                            <input matInput [placeholder]="field.placeholder || 'Textfält'" disabled>
+                                        </mat-form-field>
+
+                                        <mat-form-field *ngSwitchCase="'TEXTAREA'" appearance="outline" class="preview-field">
+                                            <textarea matInput [placeholder]="field.placeholder || 'Textarea'" disabled rows="2"></textarea>
+                                        </mat-form-field>
+
+                                        <mat-form-field *ngSwitchCase="'SELECT'" appearance="outline" class="preview-field">
+                                            <mat-select [placeholder]="field.placeholder || 'Välj...'" disabled>
+                                                <mat-option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+
+                                        <mat-checkbox *ngSwitchCase="'CHECKBOX'" disabled class="preview-checkbox">
+                                            {{ field.label }}
+                                        </mat-checkbox>
+
+                                        <mat-form-field *ngSwitchCase="'DATE'" appearance="outline" class="preview-field">
+                                            <input matInput [placeholder]="field.placeholder || 'Välj datum'" disabled>
+                                            <mat-icon matSuffix>calendar_today</mat-icon>
+                                        </mat-form-field>
+
+                                        <mat-form-field *ngSwitchDefault appearance="outline" class="preview-field">
+                                            <input matInput [placeholder]="field.placeholder || field.label" disabled>
+                                        </mat-form-field>
+                                    </ng-container>
+                                </div>
+
+                                <!-- Delete button -->
+                                <button mat-icon-button class="field-delete" (click)="deleteField(field, row.id); $event.stopPropagation()" matTooltip="Ta bort fält">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+
+                                <!-- Drag handle -->
+                                <mat-icon cdkDragHandle class="field-drag-handle">drag_indicator</mat-icon>
+                            </ng-container>
+
+                            <!-- Preview mode -->
+                            <ng-container *ngIf="previewMode()">
+                                <div class="preview-field-container">
+                                    <label class="preview-label">
+                                        {{ field.label }}
+                                        <span *ngIf="field.required" class="required-star">*</span>
+                                    </label>
+
+                                    <ng-container [ngSwitch]="field.fieldType">
+                                        <mat-form-field *ngSwitchCase="'TEXT'" appearance="outline" class="full-width">
+                                            <input matInput [placeholder]="field.placeholder || ''">
+                                        </mat-form-field>
+
+                                        <mat-form-field *ngSwitchCase="'TEXTAREA'" appearance="outline" class="full-width">
+                                            <textarea matInput [placeholder]="field.placeholder || ''" rows="3"></textarea>
+                                        </mat-form-field>
+
+                                        <mat-form-field *ngSwitchCase="'SELECT'" appearance="outline" class="full-width">
+                                            <mat-select [placeholder]="field.placeholder || 'Välj...'">
+                                                <mat-option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+
+                                        <mat-checkbox *ngSwitchCase="'CHECKBOX'" class="preview-checkbox">
+                                            {{ field.placeholder || '' }}
+                                        </mat-checkbox>
+
+                                        <mat-form-field *ngSwitchCase="'DATE'" appearance="outline" class="full-width">
+                                            <input matInput [placeholder]="field.placeholder || 'ÅÅÅÅ-MM-DD'">
+                                            <mat-icon matSuffix>calendar_today</mat-icon>
+                                        </mat-form-field>
+
+                                        <mat-form-field *ngSwitchDefault appearance="outline" class="full-width">
+                                            <input matInput [placeholder]="field.placeholder || ''">
+                                        </mat-form-field>
+                                    </ng-container>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview mode: Submit buttons -->
+                <div *ngIf="previewMode()" class="preview-actions">
+                    <button mat-stroked-button type="button">Avbryt</button>
+                    <button mat-flat-button color="primary" type="button">Skicka anmälan</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Field Properties -->
+        <aside class="field-properties" *ngIf="!previewMode()">
+            <h2>Fältegenskaper</h2>
+
+            <div *ngIf="!selectedField()" class="no-selection">
+                <mat-icon>touch_app</mat-icon>
+                <p>Välj ett fält för att redigera dess egenskaper</p>
+            </div>
+
+            <div *ngIf="selectedField()" class="properties-form">
+                <!-- Label -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Etikett</mat-label>
+                    <input matInput [(ngModel)]="selectedField()!.label" (ngModelChange)="updateSelectedField()">
+                </mat-form-field>
+
+                <!-- Placeholder -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Placeholder</mat-label>
+                    <input matInput [(ngModel)]="selectedField()!.placeholder" (ngModelChange)="updateSelectedField()">
+                </mat-form-field>
+
+                <!-- Field type (readonly for predefined) -->
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Fälttyp</mat-label>
+                    <mat-select [(ngModel)]="selectedField()!.fieldType" (ngModelChange)="updateSelectedField()" [disabled]="selectedField()?.isPredefined === true">
+                        <mat-option *ngFor="let type of baseFields" [value]="type.type">
+                            {{ type.label }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Required checkbox -->
+                <mat-checkbox [(ngModel)]="selectedField()!.required" (ngModelChange)="updateSelectedField()" color="primary">
+                    Obligatoriskt fält
+                </mat-checkbox>
+
+                <!-- Max length (for text fields) -->
+                <mat-form-field *ngIf="selectedField()!.fieldType === 'TEXT' || selectedField()!.fieldType === 'TEXTAREA'" appearance="outline" class="full-width">
+                    <mat-label>Max antal tecken</mat-label>
+                    <input matInput type="number" [(ngModel)]="selectedField()!.maxLength" (ngModelChange)="updateSelectedField()">
+                </mat-form-field>
+
+                <!-- Validation pattern -->
+                <mat-form-field *ngIf="selectedField()!.fieldType === 'TEXT'" appearance="outline" class="full-width">
+                    <mat-label>Valideringsmönster (regex)</mat-label>
+                    <input matInput [(ngModel)]="selectedField()!.validationPattern" (ngModelChange)="updateSelectedField()">
+                    <mat-hint>T.ex. ^[0-9]+$ för endast siffror</mat-hint>
+                </mat-form-field>
+
+                <!-- Options for SELECT -->
+                <div *ngIf="hasOptions(selectedField()!.fieldType)" class="options-section">
+                    <h3>Alternativ</h3>
+
+                    <div *ngFor="let option of selectedField()!.options; let i = index" class="option-row">
+                        <mat-form-field appearance="outline" class="option-field">
+                            <mat-label>Värde</mat-label>
+                            <input matInput [value]="option.value" (input)="updateOption(i, 'value', $any($event.target).value)">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="option-field">
+                            <mat-label>Visningstext</mat-label>
+                            <input matInput [value]="option.label" (input)="updateOption(i, 'label', $any($event.target).value)">
+                        </mat-form-field>
+                        <button mat-icon-button (click)="removeOption(i)" class="remove-option-btn">
+                            <mat-icon>remove_circle</mat-icon>
+                        </button>
+                    </div>
+
+                    <button mat-stroked-button (click)="addOption()" class="add-option-btn">
+                        <mat-icon>add</mat-icon>
+                        Lägg till alternativ
+                    </button>
+                </div>
+
+                <!-- Predefined field info -->
+                <div *ngIf="selectedField()!.isPredefined" class="predefined-info">
+                    <mat-icon>info</mat-icon>
+                    <span>Detta är ett fördefinierat fält med inbyggd validering</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Bottom action bar -->
+    <div class="action-bar" *ngIf="!loading()">
+        <div class="action-bar-content">
+      <span *ngIf="hasChanges()" class="unsaved-indicator">
+        <mat-icon>warning</mat-icon>
+        Osparade ändringar
+      </span>
+            <div class="action-buttons">
+                <button mat-stroked-button (click)="goBack()">
+                    <mat-icon>close</mat-icon>
+                    Stäng
+                </button>
+                <button mat-flat-button color="primary" (click)="saveForm()" [disabled]="saving()">
+                    <mat-spinner *ngIf="saving()" diameter="20"></mat-spinner>
+                    <mat-icon *ngIf="!saving()">save</mat-icon>
+                    <span>Spara formulär</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>

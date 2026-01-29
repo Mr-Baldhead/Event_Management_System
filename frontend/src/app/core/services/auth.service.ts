@@ -1,204 +1,157 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, throwError, BehaviorSubject } from 'rxjs';
 
-// User model
 export interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'ADMIN' | 'SUPERADMIN';
+    id: number;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    role: 'SUPERADMIN' | 'ADMIN';
+    mustChangePassword: boolean;
+    locked: boolean;
+    createdAt: string;
+    lastLogin: string | null;
+    initials: string;
+    fullName: string;
 }
 
-// Login request model
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-// Login response model
 export interface LoginResponse {
-  token: string;
-  user: User;
+    token: string;
+    user: User;
+    mustChangePassword: boolean;
+    message: string;
 }
 
-/**
- * Authentication service for managing user login state.
- * Uses Angular signals for reactive state management.
- */
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class AuthService {
-  
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly USER_KEY = 'auth_user';
-  
-  // Signals for reactive state
-  private _currentUser = signal<User | null>(null);
-  private _isLoading = signal<boolean>(false);
-  private _error = signal<string | null>(null);
-  
-  // Public readonly signals
-  readonly currentUser = this._currentUser.asReadonly();
-  readonly isLoading = this._isLoading.asReadonly();
-  readonly error = this._error.asReadonly();
-  
-  // Alias for backwards compatibility
-  readonly loading = this._isLoading.asReadonly();
-  
-  // Computed values
-  readonly isLoggedIn = computed(() => this._currentUser() !== null);
-  readonly userName = computed(() => {
-    const user = this._currentUser();
-    return user ? `${user.firstName} ${user.lastName}` : '';
-  });
+    private readonly apiUrl = '/api/auth';
+    private http = inject(HttpClient);
+    private router = inject(Router);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {
-    this.initializeFromStorage();
-  }
+    // Current user state
+    private currentUserSubject = new BehaviorSubject<User | null>(null);
+    currentUser$ = this.currentUserSubject.asObservable();
 
-  /**
-   * Check if user is authenticated - REQUIRED by auth guards
-   */
-  isAuthenticated(): boolean {
-    return this._currentUser() !== null;
-  }
+    // Signal-based state
+    private readonly _currentUser = signal<User | null>(null);
+    private readonly _loading = signal(false);
+    private readonly _isAuthenticated = signal(false);
 
-  /**
-   * Check if user has admin role
-   */
-  isAdmin(): boolean {
-    const role = this._currentUser()?.role;
-    return role === 'ADMIN' || role === 'SUPERADMIN';
-  }
+    // Public readonly signals
+    readonly currentUser = this._currentUser.asReadonly();
+    readonly loading = this._loading.asReadonly();
+    readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
-  /**
-   * Check if user has superadmin role
-   */
-  isSuperAdmin(): boolean {
-    return this._currentUser()?.role === 'SUPERADMIN';
-  }
+    // Computed signals for template use
+    readonly isLoggedIn = computed(() => this._isAuthenticated());
+    readonly userName = computed(() => {
+        const user = this._currentUser();
+        return user?.fullName || user?.email || '';
+    });
 
-  /**
-   * Initialize user state from localStorage
-   */
-  private initializeFromStorage(): void {
-    const token = localStorage.getItem(this.TOKEN_KEY);
-    const userJson = localStorage.getItem(this.USER_KEY);
-    
-    if (token && userJson) {
-      try {
-        const user = JSON.parse(userJson) as User;
-        this._currentUser.set(user);
-      } catch {
-        this.clearStorage();
-      }
+    constructor() {
+        // Check if user is already logged in on service init
+        this.checkAuth();
     }
-  }
 
-  /**
-   * Login with email and password
-   */
-  login(credentials: LoginRequest): Observable<LoginResponse | null> {
-    this._isLoading.set(true);
-    this._error.set(null);
-    
-    return this.http.post<LoginResponse>('/api/auth/login', credentials).pipe(
-      tap(response => {
-        this.storeAuthData(response.token, response.user);
-        this._currentUser.set(response.user);
-        this._isLoading.set(false);
-        this._error.set(null);
-      }),
-      catchError(error => {
-        console.error('Login failed:', error);
-        this._isLoading.set(false);
-        this._error.set(error.error?.message || 'Inloggningen misslyckades. Kontrollera dina uppgifter.');
-        return of(null);
-      })
-    );
-  }
+    // Login
+    login(email: string, password: string): Observable<LoginResponse> {
+        this._loading.set(true);
+        return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }, {
+            withCredentials: true
+        }).pipe(
+            tap(response => {
+                this._currentUser.set(response.user);
+                this.currentUserSubject.next(response.user);
+                this._isAuthenticated.set(true);
+                this._loading.set(false);
+            }),
+            catchError(error => {
+                this._loading.set(false);
+                return throwError(() => error);
+            })
+        );
+    }
 
-  /**
-   * Logout and clear all auth data
-   */
-  logout(): void {
-    this.clearStorage();
-    this._currentUser.set(null);
-    this._error.set(null);
-    this.router.navigate(['/login']);
-  }
+    // Logout
+    logout(): void {
+        this.http.post(`${this.apiUrl}/logout`, {}, {
+            withCredentials: true
+        }).subscribe({
+            next: () => {
+                this.clearAuthState();
+                this.router.navigate(['/login']);
+            },
+            error: () => {
+                // Even if logout fails on server, clear local state
+                this.clearAuthState();
+                this.router.navigate(['/login']);
+            }
+        });
+    }
 
-  /**
-   * Get the stored auth token
-   */
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
+    // Clear authentication state
+    private clearAuthState(): void {
+        this._currentUser.set(null);
+        this.currentUserSubject.next(null);
+        this._isAuthenticated.set(false);
+    }
 
-  /**
-   * Check if user has a valid token
-   */
-  hasValidToken(): boolean {
-    const token = this.getToken();
-    return token !== null;
-  }
+    // Check authentication status
+    checkAuth(): void {
+        this.http.get<User>(`${this.apiUrl}/me`, {
+            withCredentials: true
+        }).subscribe({
+            next: (user) => {
+                this._currentUser.set(user);
+                this.currentUserSubject.next(user);
+                this._isAuthenticated.set(true);
+            },
+            error: () => {
+                this.clearAuthState();
+            }
+        });
+    }
 
-  /**
-   * Store authentication data in localStorage
-   */
-  private storeAuthData(token: string, user: User): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-  }
+    // Change password
+    changePassword(currentPassword: string | null, newPassword: string): Observable<any> {
+        return this.http.post(`${this.apiUrl}/change-password`, {
+            currentPassword,
+            newPassword
+        }, {
+            withCredentials: true
+        });
+    }
 
-  /**
-   * Clear all stored authentication data
-   */
-  private clearStorage(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-  }
+    // Get current user synchronously
+    getCurrentUser(): User | null {
+        return this._currentUser();
+    }
 
-  /**
-   * Clear error message
-   */
-  clearError(): void {
-    this._error.set(null);
-  }
+    // Get token - not used with cookie-based auth, but kept for compatibility
+    getToken(): string | null {
+        // With HttpOnly cookies, we don't have access to the token in JS
+        // This method is kept for compatibility but returns null
+        return null;
+    }
 
-  /**
-   * Update current user profile
-   */
-  updateProfile(user: User): void {
-    this._currentUser.set(user);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-  }
+    // Check if user has specific role
+    hasRole(role: 'SUPERADMIN' | 'ADMIN'): boolean {
+        const user = this._currentUser();
+        return user?.role === role;
+    }
 
-  // =========================================================================
-  // Development helpers - Remove in production!
-  // =========================================================================
-  
-  /**
-   * Dev login - bypasses backend for testing
-   */
-  devLogin(role: 'ADMIN' | 'SUPERADMIN' = 'ADMIN'): void {
-    const mockUser: User = {
-      id: 1,
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'Användare',
-      role: role
-    };
-    
-    this.storeAuthData('dev-token-' + Date.now(), mockUser);
-    this._currentUser.set(mockUser);
-    this._error.set(null);
-  }
+    // Check if user is SuperAdmin
+    isSuperAdmin(): boolean {
+        return this.hasRole('SUPERADMIN');
+    }
+
+    // Check if user is Admin
+    isAdmin(): boolean {
+        return this.hasRole('ADMIN') || this.hasRole('SUPERADMIN');
+    }
 }

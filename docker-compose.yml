@@ -59,6 +59,7 @@ services:
       DB_NAME: eventmanager
       DB_USER: eventuser
       DB_PASSWORD: eventpassword
+      RESEND_API_KEY: ${RESEND_API_KEY}
       WILDFLY_ADMIN_USER: admin
       WILDFLY_ADMIN_PASSWORD: admin123
     ports:
