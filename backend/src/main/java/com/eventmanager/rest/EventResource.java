@@ -34,17 +34,6 @@ public class EventResource {
                 .orElse(Response.status(Response.Status.NOT_FOUND).build());
     }
 
-    @GET
-    @Path("/slug/{slug}")
-    public Response getEventBySlug(@PathParam("slug") String slug) {
-        try {
-            EventDTO event = eventService.findBySlug(slug);
-            return Response.ok(event).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-    }
-
     @POST
     public Response createEvent(@Valid EventDTO eventDTO) {
         EventDTO created = eventService.create(eventDTO);

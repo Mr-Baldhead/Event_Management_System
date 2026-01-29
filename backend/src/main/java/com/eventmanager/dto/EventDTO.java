@@ -17,10 +17,6 @@ public class EventDTO {
     @Size(max = 200, message = "Name cannot exceed 200 characters")
     private String name;
 
-    @NotBlank(message = "Slug is required")
-    @Size(max = 200, message = "Slug cannot exceed 200 characters")
-    private String slug;
-
     @Size(max = 2000, message = "Description cannot exceed 2000 characters")
     private String description;
 
@@ -60,7 +56,6 @@ public class EventDTO {
     public EventDTO(Event event) {
         this.id = event.getId();
         this.name = event.getName();
-        this.slug = event.getSlug();
         this.description = event.getDescription();
         this.startDate = event.getStartDate();
         this.endDate = event.getEndDate();
@@ -71,13 +66,13 @@ public class EventDTO {
         this.active = event.getActive();
         this.createdAt = event.getCreatedAt();
         this.updatedAt = event.getUpdatedAt();
-        
+
         // Safely handle lazy-loaded registrations collection
         if (event.getRegistrations() != null && Hibernate.isInitialized(event.getRegistrations())) {
             this.registrationCount = event.getRegistrations().size();
-            this.remainingSpots = event.getCapacity() != null 
-                ? event.getCapacity() - this.registrationCount 
-                : null;
+            this.remainingSpots = event.getCapacity() != null
+                    ? event.getCapacity() - this.registrationCount
+                    : null;
         } else {
             this.registrationCount = 0;
             this.remainingSpots = event.getCapacity();
@@ -89,7 +84,6 @@ public class EventDTO {
         Event event = new Event();
         event.setId(this.id);
         event.setName(this.name);
-        event.setSlug(this.slug);
         event.setDescription(this.description);
         event.setStartDate(this.startDate);
         event.setEndDate(this.endDate);
@@ -104,7 +98,6 @@ public class EventDTO {
     // Update existing entity from DTO
     public void updateEntity(Event event) {
         event.setName(this.name);
-        event.setSlug(this.slug);
         event.setDescription(this.description);
         event.setStartDate(this.startDate);
         event.setEndDate(this.endDate);
@@ -132,14 +125,6 @@ public class EventDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSlug() {
-        return slug;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
     }
 
     public String getDescription() {

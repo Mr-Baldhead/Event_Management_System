@@ -13,18 +13,14 @@ import java.util.List;
 @Entity
 @Table(name = "events")
 @NamedQueries({
-    @NamedQuery(
-        name = "Event.findAll",
-        query = "SELECT e FROM Event e ORDER BY e.startDate DESC"
-    ),
-    @NamedQuery(
-        name = "Event.findUpcoming",
-        query = "SELECT e FROM Event e WHERE e.startDate > :now ORDER BY e.startDate ASC"
-    ),
-    @NamedQuery(
-        name = "Event.findBySlug",
-        query = "SELECT e FROM Event e WHERE e.slug = :slug"
-    )
+        @NamedQuery(
+                name = "Event.findAll",
+                query = "SELECT e FROM Event e ORDER BY e.startDate DESC"
+        ),
+        @NamedQuery(
+                name = "Event.findUpcoming",
+                query = "SELECT e FROM Event e WHERE e.startDate > :now ORDER BY e.startDate ASC"
+        )
 })
 public class Event {
 
@@ -36,11 +32,6 @@ public class Event {
     @Size(max = 200, message = "Name cannot exceed 200 characters")
     @Column(nullable = false, length = 200)
     private String name;
-
-    @NotBlank(message = "Slug is required")
-    @Size(max = 200, message = "Slug cannot exceed 200 characters")
-    @Column(nullable = false, unique = true, length = 200)
-    private String slug;
 
     @Size(max = 2000, message = "Description cannot exceed 2000 characters")
     @Column(length = 2000)
@@ -107,9 +98,8 @@ public class Event {
     }
 
     // Constructor with required fields
-    public Event(String name, String slug, LocalDateTime startDate, LocalDateTime endDate) {
+    public Event(String name, LocalDateTime startDate, LocalDateTime endDate) {
         this.name = name;
-        this.slug = slug;
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -120,8 +110,8 @@ public class Event {
             return true; // Unlimited capacity
         }
         long confirmedCount = registrations.stream()
-            .filter(r -> r.getStatus() == RegistrationStatus.CONFIRMED)
-            .count();
+                .filter(r -> r.getStatus() == RegistrationStatus.CONFIRMED)
+                .count();
         return confirmedCount < capacity;
     }
 
@@ -131,8 +121,8 @@ public class Event {
             return Integer.MAX_VALUE;
         }
         long confirmedCount = registrations.stream()
-            .filter(r -> r.getStatus() == RegistrationStatus.CONFIRMED)
-            .count();
+                .filter(r -> r.getStatus() == RegistrationStatus.CONFIRMED)
+                .count();
         return (int) (capacity - confirmedCount);
     }
 
@@ -151,14 +141,6 @@ public class Event {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSlug() {
-        return slug;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
     }
 
     public String getDescription() {

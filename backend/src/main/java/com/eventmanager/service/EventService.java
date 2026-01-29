@@ -53,14 +53,6 @@ public class EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event", id));
     }
 
-    // Get event by slug as DTO
-    @Transactional
-    public EventDTO findBySlug(String slug) {
-        Event event = eventRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Event with slug: " + slug));
-        return toEventDTOWithCount(event);
-    }
-
     // Get upcoming events
     @Transactional
     public List<EventDTO> findUpcoming() {
@@ -80,11 +72,6 @@ public class EventService {
     // Create a new event
     @Transactional
     public EventDTO create(EventDTO eventDTO) {
-        // Validate slug uniqueness
-        if (eventRepository.isSlugTaken(eventDTO.getSlug(), null)) {
-            throw new IllegalArgumentException("Slug '" + eventDTO.getSlug() + "' is already taken");
-        }
-
         Event event = eventDTO.toEntity();
         Event savedEvent = eventRepository.save(event);
         return toEventDTOWithCount(savedEvent);
@@ -96,11 +83,6 @@ public class EventService {
         Event existingEvent = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event", id));
 
-        // Validate slug uniqueness (excluding current event)
-        if (eventRepository.isSlugTaken(eventDTO.getSlug(), id)) {
-            throw new IllegalArgumentException("Slug '" + eventDTO.getSlug() + "' is already taken");
-        }
-
         eventDTO.updateEntity(existingEvent);
         Event updatedEvent = eventRepository.update(existingEvent);
         return toEventDTOWithCount(updatedEvent);
@@ -111,9 +93,6 @@ public class EventService {
     public Optional<EventDTO> updateOptional(Long id, EventDTO eventDTO) {
         return eventRepository.findById(id)
                 .map(existingEvent -> {
-                    if (eventRepository.isSlugTaken(eventDTO.getSlug(), id)) {
-                        throw new IllegalArgumentException("Slug '" + eventDTO.getSlug() + "' is already taken");
-                    }
                     eventDTO.updateEntity(existingEvent);
                     Event updatedEvent = eventRepository.update(existingEvent);
                     return toEventDTOWithCount(updatedEvent);
@@ -183,27 +162,6 @@ public class EventService {
         return eventRepository.count();
     }
 
-    // Generate unique slug from name
-    public String generateSlug(String name) {
-        String baseSlug = name.toLowerCase()
-                .replaceAll("[åä]", "a")
-                .replaceAll("ö", "o")
-                .replaceAll("[^a-z0-9\\s-]", "")
-                .replaceAll("\\s+", "-")
-                .replaceAll("-+", "-")
-                .replaceAll("^-|-$", "");
-
-        String slug = baseSlug;
-        int counter = 1;
-
-        while (eventRepository.isSlugTaken(slug, null)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-
-        return slug;
-    }
-
     // Helper method to get registration count for an event
     private int getRegistrationCount(Long eventId) {
         Long count = em.createQuery(
@@ -218,7 +176,6 @@ public class EventService {
         EventDTO dto = new EventDTO();
         dto.setId(event.getId());
         dto.setName(event.getName());
-        dto.setSlug(event.getSlug());
         dto.setDescription(event.getDescription());
         dto.setStartDate(event.getStartDate());
         dto.setEndDate(event.getEndDate());
