@@ -1,4 +1,54 @@
-@use "variables" as *;
+// Form Builder colors
+$btn-primary-bg: #315882;
+$btn-primary-text: #ffffff;
+$btn-inactive-bg: #ffffff;
+$btn-inactive-text: #333333;
+$drag-handle-bg: #1D968C;
+$drag-handle-hover: #136E67;
+
+// Other colors from design
+$primary: #1D968C;
+$primary-dark: #136E67;
+$blue-500: #5A88B7;
+$gray-50: #F0F1F1;
+$gray-100: #E5E7E8;
+$gray-200: #D0D1D4;
+$gray-300: #A8AAB0;
+$gray-400: #82848C;
+$gray-500: #5F6166;
+$text-primary: #1F2023;
+$text-secondary: #3E3F43;
+$text-muted: #5F6166;
+$border-light: #E5E7E8;
+$danger: #DC3545;
+$warning: #FFC107;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Border radius
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+
+// Shadows
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+// Font
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
 
 .form-builder-container {
   min-height: calc(100vh - 64px);
@@ -6,46 +56,15 @@
 }
 
 .page-header {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: $spacing-lg $spacing-lg 0;
+  background: white;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid $border-light;
 
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: $primary;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: $font-size-sm;
-    cursor: pointer;
-    margin-bottom: $spacing-sm;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  h1 {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
+  .event-title {
     font-size: $font-size-2xl;
-    font-weight: $font-weight-semibold;
-    color: $blue-600;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
     margin: 0;
-
-    mat-icon {
-      color: $primary;
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-    }
-  }
-
-  .subtitle {
-    color: $text-secondary;
-    margin: $spacing-xs 0 0;
   }
 }
 
@@ -54,7 +73,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: $spacing-3xl;
+  padding: 48px;
   gap: $spacing-md;
   color: $text-secondary;
 }
@@ -62,44 +81,65 @@
 // Three-column layout
 .builder-layout {
   display: grid;
-  grid-template-columns: 220px 1fr 240px;
-  gap: $spacing-md;
+  grid-template-columns: 240px 1fr 260px;
+  gap: 0;
   max-width: 100%;
-  margin: 0;
-  padding: $spacing-md $spacing-sm;
-  padding-bottom: 100px;
+  height: calc(100vh - 64px - 65px - 72px);
+  overflow: hidden;
 
-  @media (max-width: $breakpoint-lg) {
+  &.preview-active {
     grid-template-columns: 1fr;
   }
 }
 
+.panel-title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin: 0 0 $spacing-md;
+}
+
 // Field Library (Left Panel)
 .field-library {
-  h2 {
-    font-size: $font-size-base;  // Smaller
-    font-weight: $font-weight-semibold;
-    color: $blue-600;
-    margin: 0 0 $spacing-sm;
-  }
+  background: white;
+  border-right: 1px solid $border-light;
+  padding: $spacing-lg;
+  overflow-y: auto;
+}
 
-  mat-expansion-panel {
-    margin-bottom: $spacing-xs;
-    box-shadow: $shadow-sm !important;
-    border-radius: $radius-md !important;
+.library-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: $spacing-md;
+  border-bottom: 1px solid $border-light;
 
-    mat-panel-title {
-      display: flex;
-      align-items: center;
-      gap: $spacing-xs;
-      font-weight: $font-weight-medium;
-      font-size: $font-size-sm;  // Smaller
+  .tab-btn {
+    flex: 1;
+    padding: $spacing-sm $spacing-md;
+    background: none;
+    border: none;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
 
-      mat-icon {
-        color: $primary;
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
+    &:hover {
+      color: $text-primary;
+    }
+
+    &.active {
+      color: $primary;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: $primary;
       }
     }
   }
@@ -118,56 +158,49 @@
   padding: $spacing-sm $spacing-md;
   background: white;
   border: 1px solid $border-light;
-  border-radius: $radius-sm;
+  border-radius: $radius-md;
   cursor: grab;
-  transition: all $transition-fast;
+  transition: all 0.2s ease;
 
   &:hover {
     border-color: $primary;
-    background: $blue-50;
+    background: rgba($primary, 0.05);
   }
 
   &:active {
     cursor: grabbing;
   }
 
-  &.predefined {
-    border-left: 3px solid $teal-300;
+  &.has-settings {
+    padding-right: $spacing-xs;
   }
 
-  mat-icon:first-child {
+  .field-icon {
     color: $primary;
     font-size: 20px;
     width: 20px;
     height: 20px;
   }
 
-  .field-info {
+  .field-label {
     flex: 1;
-    min-width: 0;
-
-    .field-label {
-      display: block;
-      font-weight: $font-weight-medium;
-      font-size: $font-size-sm;
-      color: $text-primary;
-    }
-
-    .field-desc {
-      display: block;
-      font-size: $font-size-xs;
-      color: $text-muted;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
   }
 
-  .drag-handle {
-    color: $gray-300;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+  .settings-btn {
+    width: 32px;
+    height: 32px;
+
+    mat-icon {
+      font-size: 18px;
+      color: $text-muted;
+    }
+
+    &:hover mat-icon {
+      color: $primary;
+    }
   }
 }
 
@@ -178,24 +211,22 @@
   padding: $spacing-sm $spacing-md;
   background: white;
   border: 2px solid $primary;
-  border-radius: $radius-sm;
+  border-radius: $radius-md;
   box-shadow: $shadow-lg;
   font-weight: $font-weight-medium;
-
-  &.predefined {
-    border-color: $teal-400;
-  }
+  font-size: $font-size-sm;
 
   mat-icon {
     color: $primary;
+    font-size: 20px;
   }
 }
 
 // Form Canvas (Center)
 .form-canvas {
-  background: white;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
+  background: $gray-50;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -204,128 +235,181 @@
   justify-content: space-between;
   align-items: center;
   padding: $spacing-md $spacing-lg;
+  background: white;
   border-bottom: 1px solid $border-light;
-  background: $gray-50;
+}
 
-  h2 {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-semibold;
-    color: $blue-600;
-    margin: 0;
-  }
+// Custom toggle group with specified colors
+.toggle-group {
+  display: flex;
+  border-radius: $radius-md;
+  overflow: hidden;
+  border: 1px solid $border-light;
 
-  .canvas-actions {
-    display: flex;
-    gap: $spacing-sm;
+  .toggle-btn {
+    padding: $spacing-sm $spacing-lg;
+    border: none;
+    background: $btn-inactive-bg;
+    color: $btn-inactive-text;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all 0.2s ease;
 
-    button.active {
-      background: $blue-100;
+    &:first-child {
+      border-right: 1px solid $border-light;
+    }
+
+    &.active {
+      background: $btn-primary-bg;
+      color: $btn-primary-text;
+    }
+
+    &:hover:not(.active) {
+      background: $gray-100;
     }
   }
 }
 
-.empty-canvas {
+// Add Row button
+.add-row-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: $spacing-3xl;
-  color: $text-muted;
-  text-align: center;
-
-  mat-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    color: $gray-200;
-    margin-bottom: $spacing-md;
-  }
-
-  p {
-    margin: 0 0 $spacing-lg;
-    font-size: $font-size-base;
-  }
-}
-
-.canvas-rows {
-  padding: $spacing-lg;
-}
-
-.form-row {
-  display: flex;
-  gap: $spacing-sm;
-  margin-bottom: $spacing-md;
-  padding: $spacing-sm;
-  border: 2px dashed transparent;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: $btn-primary-bg;
+  color: $btn-primary-text;
+  border: none;
   border-radius: $radius-md;
-  transition: all $transition-fast;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background 0.2s ease;
 
   &:hover {
-    border-color: $gray-200;
+    background: darken($btn-primary-bg, 8%);
   }
 
-  &.selected {
-    border-color: $primary;
-    background: rgba($primary, 0.02);
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 }
 
-.row-controls {
+.canvas-content {
+  flex: 1;
+  padding: $spacing-lg;
+  overflow-y: auto;
+
+  &.preview-mode {
+    display: flex;
+    justify-content: center;
+    background: $gray-100;
+  }
+}
+
+.rows-container {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: $spacing-md;
+}
 
-  button {
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
+// Form Row
+.form-row {
+  display: flex;
+  background: white;
+  border: 2px dashed $border-light;
+  border-radius: $radius-lg;
+  transition: all 0.2s ease;
+  overflow: hidden;
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
+  &:hover {
+    border-color: $gray-300;
+  }
 
-    &.delete-btn {
-      color: $danger;
-    }
+  &.cdk-drag-preview {
+    border: 2px solid $primary;
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Green drag handle
+.row-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  background: $drag-handle-bg;
+  cursor: grab;
+
+  mat-icon {
+    color: white;
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: $drag-handle-hover;
+  }
+
+  &:active {
+    cursor: grabbing;
   }
 }
 
 .row-content {
   flex: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-md;
-  min-height: 80px;
-  padding: $spacing-md;
-  background: $gray-50;
-  border: 2px dashed $gray-200;
-  border-radius: $radius-md;
-  transition: all $transition-fast;
+  flex-direction: column;
+  min-width: 0;
+}
 
-  &.empty {
-    justify-content: center;
-    align-items: center;
+// Row header - white background
+.row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xs $spacing-sm;
+  border-bottom: 1px solid $border-light;
+  background: white;
+
+  .row-label {
+    font-size: $font-size-sm;
+    color: $text-secondary;
   }
 
-  &.cdk-drop-list-dragging {
-    border-color: $primary;
-    background: rgba($primary, 0.05);
-  }
+  .delete-row-btn {
+    width: 24px;
+    height: 24px;
 
-  &.preview-mode {
-    background: white;
-    border: none;
-    flex-direction: column;
-    gap: $spacing-lg;
+    mat-icon {
+      font-size: 16px;
+      color: $text-muted;
+    }
+
+    &:hover mat-icon {
+      color: $danger;
+    }
   }
 }
 
+.row-fields {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  min-height: 80px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  background: white;
+}
+
 .row-placeholder {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: $spacing-xs;
   color: $text-muted;
   font-size: $font-size-sm;
@@ -338,27 +422,26 @@
   }
 }
 
+.row-drag-placeholder {
+  background: rgba($primary, 0.1);
+  border: 2px dashed $primary;
+  border-radius: $radius-lg;
+  min-height: 100px;
+}
+
 // Field Card
 .field-card {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-  max-width: 100%;
-  padding: $spacing-md;
+  min-width: 0;
   background: white;
   border: 1px solid $border-light;
   border-radius: $radius-md;
-  cursor: pointer;
-  transition: all $transition-fast;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  box-sizing: border-box;
 
-  &:hover:not(.preview-mode) {
+  &:hover {
     border-color: $primary;
     box-shadow: $shadow-sm;
-
-    .field-delete,
-    .field-drag-handle {
-      opacity: 1;
-    }
   }
 
   &.selected {
@@ -366,145 +449,196 @@
     box-shadow: 0 0 0 2px rgba($primary, 0.2);
   }
 
-  &.preview-mode {
-    border: none;
-    padding: 0;
-    cursor: default;
-    box-shadow: none;
-  }
-
   &.cdk-drag-preview {
     box-shadow: $shadow-lg;
-  }
-
-  &.cdk-drag-placeholder {
-    opacity: 0.5;
-    border: 2px dashed $primary;
-    background: rgba($primary, 0.05);
   }
 }
 
 .field-card-header {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
-  margin-bottom: $spacing-sm;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  background: $gray-50;
+  border-bottom: 1px solid $border-light;
 
-  mat-icon:first-child {
+  .field-drag {
+    cursor: grab;
+    color: $gray-300;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+
+    &:hover {
+      color: $gray-500;
+    }
+  }
+
+  .field-type-icon {
     color: $primary;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
   }
 
-  .field-label {
-    flex: 1;
-    font-weight: $font-weight-medium;
-    font-size: $font-size-sm;
-    color: $text-primary;
-  }
+  .delete-field-btn {
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
 
-  .field-type {
-    font-size: $font-size-xs;
-    color: $text-muted;
-    background: $gray-100;
-    padding: 2px 6px;
-    border-radius: $radius-sm;
-  }
-
-  .required-badge {
-    color: $danger;
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-  }
-}
-
-.field-preview {
-  .preview-field {
-    width: 100%;
-    pointer-events: none;
-
-    ::ng-deep .mat-mdc-form-field-flex {
-      height: 36px !important;
+    mat-icon {
+      font-size: 14px;
+      color: $text-muted;
     }
 
-    ::ng-deep input,
-    ::ng-deep textarea {
-      font-size: $font-size-sm;
-    }
-  }
-
-  .preview-checkbox {
-    font-size: $font-size-sm;
-  }
-}
-
-.field-delete {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  opacity: 0;
-  color: $danger;
-  transition: opacity $transition-fast;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.field-drag-handle {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  opacity: 0;
-  color: $gray-400;
-  cursor: grab;
-  transition: opacity $transition-fast;
-
-  &:active {
-    cursor: grabbing;
-  }
-}
-
-// Preview mode field container
-.preview-field-container {
-  .preview-label {
-    display: block;
-    font-weight: $font-weight-medium;
-    font-size: $font-size-sm;
-    color: $text-primary;
-    margin-bottom: $spacing-xs;
-
-    .required-star {
+    &:hover mat-icon {
       color: $danger;
     }
   }
+}
 
-  .full-width {
+.field-card-content {
+  padding: $spacing-xs $spacing-sm $spacing-sm;
+
+  .edit-field-input {
     width: 100%;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
   }
 }
 
-.preview-actions {
+.field-placeholder {
+  background: rgba($primary, 0.1);
+  border: 2px dashed $primary;
+  border-radius: $radius-md;
+  min-height: 80px;
+  flex: 1;
+}
+
+// ===============================
+// PREVIEW MODE - Clean web form
+// ===============================
+.preview-form-container {
+  width: 100%;
+  max-width: 700px;
+  padding: $spacing-lg 0;
+}
+
+.preview-form {
+  background: white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  padding: $spacing-xl;
+}
+
+.preview-row {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+
+  &:last-of-type {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.preview-field-wrapper {
+  min-width: 0;
+}
+
+.preview-form-field {
+  width: 100%;
+
+  ::ng-deep {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      background: white;
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $gray-300 !important;
+    }
+
+    .mat-mdc-form-field:hover .mdc-notched-outline__leading,
+    .mat-mdc-form-field:hover .mdc-notched-outline__notch,
+    .mat-mdc-form-field:hover .mdc-notched-outline__trailing {
+      border-color: $primary !important;
+    }
+
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+      border-color: $primary !important;
+    }
+
+    .mdc-floating-label {
+      color: $text-secondary;
+    }
+
+    .mat-mdc-form-field.mat-focused .mdc-floating-label {
+      color: $primary;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: $gray-400;
+    }
+  }
+}
+
+.preview-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: $spacing-md;
-  padding-top: $spacing-lg;
+  padding-top: $spacing-md;
   border-top: 1px solid $border-light;
-  margin-top: $spacing-lg;
+  margin-top: $spacing-md;
+}
+
+.preview-cancel-btn {
+  padding: $spacing-sm $spacing-lg;
+  background: $btn-inactive-bg;
+  color: $btn-inactive-text;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $gray-100;
+  }
+}
+
+.preview-submit-btn {
+  padding: $spacing-sm $spacing-lg;
+  background: $btn-primary-bg;
+  color: $btn-primary-text;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: darken($btn-primary-bg, 8%);
+  }
 }
 
 // Field Properties (Right Panel)
 .field-properties {
-  h2 {
-    font-size: $font-size-base;  // Smaller
-    font-weight: $font-weight-semibold;
-    color: $blue-600;
-    margin: 0 0 $spacing-sm;
-  }
+  background: white;
+  border-left: 1px solid $border-light;
+  padding: $spacing-lg;
+  overflow-y: auto;
 }
 
 .no-selection {
@@ -513,8 +647,6 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-xl;
-  background: white;
-  border-radius: $radius-md;
   text-align: center;
   color: $text-muted;
 
@@ -533,77 +665,20 @@
 }
 
 .properties-form {
-  background: white;
-  border-radius: $radius-md;
-  padding: $spacing-md;  // Smaller padding
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
 
   .full-width {
     width: 100%;
-    margin-bottom: $spacing-xs;
   }
 
   mat-checkbox {
-    margin-bottom: $spacing-sm;
+    margin-top: $spacing-sm;
   }
 }
 
-.options-section {
-  margin-top: $spacing-md;
-  padding-top: $spacing-md;
-  border-top: 1px solid $border-light;
-
-  h3 {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    color: $text-primary;
-    margin: 0 0 $spacing-sm;
-  }
-}
-
-.option-row {
-  display: flex;
-  gap: $spacing-xs;
-  align-items: flex-start;
-  margin-bottom: $spacing-xs;
-
-  .option-field {
-    flex: 1;
-
-    ::ng-deep .mat-mdc-form-field-flex {
-      height: 36px !important;
-    }
-  }
-
-  .remove-option-btn {
-    margin-top: 4px;
-    color: $danger;
-  }
-}
-
-.add-option-btn {
-  width: 100%;
-  margin-top: $spacing-sm;
-}
-
-.predefined-info {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-sm;
-  background: $blue-50;
-  border-radius: $radius-sm;
-  margin-top: $spacing-md;
-  font-size: $font-size-xs;
-  color: $blue-500;
-
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-  }
-}
-
-// Bottom Action Bar
+// Action Bar
 .action-bar {
   position: fixed;
   bottom: 0;
@@ -619,8 +694,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: 100%;
   padding: $spacing-md $spacing-lg;
 }
 
@@ -642,31 +716,82 @@
 .action-buttons {
   display: flex;
   gap: $spacing-sm;
+  margin-left: auto;
+}
 
-  button {
-    display: flex;
-    align-items: center;
-    gap: $spacing-xs;
+.close-btn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: $btn-inactive-bg;
+  color: $btn-inactive-text;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $gray-100;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 }
 
-// CDK Drag & Drop styles
+.save-btn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: $btn-primary-bg;
+  color: $btn-primary-text;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: darken($btn-primary-bg, 8%);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// CDK Drag & Drop
 .cdk-drag-animating {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.cdk-drop-list-dragging .field-card:not(.cdk-drag-placeholder) {
+.cdk-drop-list-dragging .field-card:not(.cdk-drag-placeholder),
+.cdk-drop-list-dragging .form-row:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 // Responsive
-@media (max-width: $breakpoint-lg) {
+@media (max-width: 1024px) {
   .builder-layout {
     grid-template-columns: 1fr;
   }
 
   .field-library,
   .field-properties {
-    display: none; // Hide side panels on mobile - would need mobile-specific UI
+    display: none;
   }
 }

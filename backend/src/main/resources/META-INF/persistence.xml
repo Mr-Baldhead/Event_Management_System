@@ -16,6 +16,8 @@
         <class>com.eventmanager.entity.FieldOption</class>
         <class>com.eventmanager.entity.User</class>
         <class>com.eventmanager.entity.Session</class>
+        <class>com.eventmanager.entity.Troop</class>
+        <class>com.eventmanager.entity.FoodAllergy</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
