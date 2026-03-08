@@ -1,6 +1,6 @@
 # Event Management System
 
-Ett komplett eventhanteringssystem för svenska scoutorganisationer, byggt med Angular 19 och Jakarta EE.
+Ett eventhanteringssystem för scoutorganisationer, byggt med Angular 19 och Jakarta EE.
 
 ## 📋 Innehåll
 
@@ -273,27 +273,9 @@ docker-compose up
 
 ---
 
-## 📊 Databasdiagram
-
-Se `Databasdiagram.pdf` och `Classdiagram.png` i projektmappen för fullständig dokumentation av datamodellen.
-
----
-
-## 👥 Roller
-
-| Roll | Behörigheter |
-|------|--------------|
-| **SuperAdmin** | Hantera administratörer |
-| **Admin** | Hantera events, formulär, anmälningar, allergier |
-
----
-
-## 📧 Kontakt
-
-Utvecklat som examensarbete 2026.
-
----
-
 ## 📝 Licens
-
+Utvecklat som examensarbete 2026.
 Detta projekt är utvecklat för utbildningssyfte.
+
+---
+
