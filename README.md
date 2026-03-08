@@ -12,6 +12,7 @@ Ett eventhanteringssystem för scoutorganisationer, byggt med Angular 19 och Jak
 - [API-dokumentation](#api-dokumentation)
 - [Utveckling](#utveckling)
 - [Felsökning](#felsökning)
+- [Bilder](#Bilder)
 
 ---
 
@@ -277,5 +278,10 @@ docker-compose up
 Utvecklat som examensarbete 2026.
 Detta projekt är utvecklat för utbildningssyfte.
 
----
+##Bilder
+<img width="1099" height="885" alt="Skärmavbild 2026-01-26 kl  11 31 34" src="https://github.com/user-attachments/assets/b3ebbdd7-c001-4594-b481-d8a24ccfdf3e" />
+<img width="1327" height="913" alt="Skärmavbild 2026-03-08 kl  15 37 37" src="https://github.com/user-attachments/assets/fad64538-be3f-4f03-aba5-8354cf64405c" />
+<img width="1056" height="743" alt="Skärmavbild 2026-03-08 kl  15 35 33" src="https://github.com/user-attachments/assets/f3ccb372-be99-4529-b65c-ed37c6c6c1ec" />
+<img width="1026" height="795" alt="Skärmavbild 2026-01-28 kl  15 40 44" src="https://github.com/user-attachments/assets/e52ae802-11b1-4a16-9f6d-4331d1e5f1f7" />
+
 
